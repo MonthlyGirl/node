@@ -31,12 +31,13 @@ router.get('/good/detail', function(req, res){
 
 // 商品列表查询
 router.get('/good/list', function(req, res) {
-  var { size, page, cate, hot } = req.query
+  var { size, page, cate, hot,rank } = req.query
   // 用于查询
   var params = {
     cate: (cate || ''),
     hot: (hot || false),
-    status: 1
+    status: 0,
+    rank:(rank || 1)
   }
   if(!params.cate) delete params.cate
   if(!params.hot) delete params.hot

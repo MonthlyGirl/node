@@ -9,6 +9,5 @@ module.exports = mongoose.model('goods', new mongoose.Schema({
   hot: Boolean,
   
   rank: Number,
-  create_time: Number,
   status: Number
 }))

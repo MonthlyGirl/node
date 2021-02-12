@@ -1,6 +1,6 @@
 // MongoDB连接
 var mongoose = require('mongoose')
-var conn = mongoose.connect('mongodb://localhost/qf2011', {
+var conn = mongoose.connect('mongodb://localhost/MUJI_api', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,

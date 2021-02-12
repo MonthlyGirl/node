@@ -6,33 +6,37 @@ var md5 = require('md5')
 var jwt = require('../utils/jwt')
 
 // 注册
-// http://10.36.149.14:8888/api/v1/user/regist
+// http://10.36.149.14:8889/api/v1/user/regist
 router.post('/regist', (req, res)=>{
   // 要什么入参？怎么接收入参？
   // 验证必须参数有没有传？
-  let { username, password, password2 } = req.body
+  let { userphone, password, password2 } = req.body
 
   // 验证必填
-  if(!username) return res.json({err:1, msg:'username是必填'})
+  if (!userphone) return res.json({ err: 1, msg:'userphone是必填'})
   if(!password) return res.json({err:1, msg:'password是必填'})
   if(!password2) return res.json({err:1, msg:'password2是必填'})
+  //验证手机号格式
+  let telStr = /^[1]([3|5|7|8|9])[0-9]{9}$/
+  if (!telStr.test(userphone)) return res.json({err:2,msg:'手机号格式错误'})
   // 判断两次密码是否相同
   if(password!=password2) return res.json({err:2,msg:'两次密码不相同'})
+
   // 验证用户名是否已经被注册过
-  userModel.find({username}).then(arr=>{
+  userModel.find({ userphone}).then(arr=>{
     if(arr.length==0){
       // 所有数据验证成功之后
       var ele = {
-        username,
+        userphone,
         password: md5(password),
         create_time: Date.now()
       }
       // 把准备好的文档插入到users集合中去
       userModel.insertMany([ele]).then(()=>{
-        res.json({err: 0, msg: '注册成功', data: {username}})
+        res.json({ err: 0, msg: '注册成功', data: { userphone}})
       })
     }else{
-      res.json({err:2, msg:`${username} 已被注册`})
+      res.json({ err: 2, msg: `${userphone} 已被注册`})
     }
   })
 })
@@ -40,20 +44,30 @@ router.post('/regist', (req, res)=>{
 // 登录
 router.post('/login', (req, res)=>{
   // 前端入参是什么？
-  let { username, password } = req.body
+  let { userphone, password } = req.body
   // 必须参数检查
-  if(!username) return res.json({err:1, msg:'username是必填'})
+  if (!userphone) return res.json({ err: 1, msg:'userphone是必填'})
   if(!password) return res.json({err:1, msg:'password是必填'})
+  //验证手机号格式
+  let telStr = /^[1]([3|5|7|8|9])[0-9]{9}$/
+  if (!telStr.test(userphone)) return res.json({ err: 2, msg: '手机号格式错误' })
 
-  userModel.find({username, password: md5(password)}).then(arr=>{
+  userModel.find({ userphone}).then(arr=>{
+    // console.log('arr: ', arr);
     if(arr.length === 1) {
-      var token = jwt.createToken({
-        username,
-        password: md5(password)
-      })
-      res.json({err: 0, msg: '登录成功', data: { token }})
+      console.log("arr",arr);
+      if(arr[0].password !=md5(password)) {
+        res.json({ err: 1, msg: '密码错误'})
+      }else{
+        var token = jwt.createToken({
+          userphone,
+          password: md5(password)
+        })
+        res.json({ err: 0, msg: '登录成功', data: { token } }) 
+      }
+     
     }else{
-      res.json({err: 1, msg: `${username} 不存在`})
+      res.json({ err: 1, msg: `${userphone} 不存在`})
     }
   })
 })
